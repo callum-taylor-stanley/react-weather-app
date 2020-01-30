@@ -171,8 +171,8 @@ class Search extends React.Component {
 
     searchByCity = () => {
         this.props.resetState();
-        
-        const apiKey = '16ee5428ea83c146f11f97e64d2036a6';
+
+        const apiKey = '<<API_KEY>>';
         const url = 'http://api.openweathermap.org/data/2.5/weather?q=' + this.state.city + '&APPID=' + apiKey;
 
         fetch(url)
