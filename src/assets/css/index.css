@@ -1,0 +1,8 @@
+body {
+    width: 750px;
+    margin: 0 auto !important;
+}
+
+.search-error span:not(:first-of-type) {
+    display: block;
+}
