@@ -1,5 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
 import './assets/css/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -112,16 +115,20 @@ class Weather extends React.Component {
 
     render() {
         return (
-            <div>
-                {this.isError() &&
-                    <div className="search-error alert alert-danger">
-                            <strong>Error!</strong> <span>Sorry, an error occurred fetching the weather forecast.</span>
+            <div className="container">
+                <div className="py-5">
+                    {this.isError() &&
+                        <Alert variant="danger" className="search-error">
+                            <Alert.Heading>Error!</Alert.Heading>
+                            <p>
+                                Sorry, an error occurred fetching the weather forecast.
+                            </p>
+                            <hr />
                             <span>Error code: {this.state.results.error.code}</span>
                             <span>Error message: {this.state.results.error.message}</span>
-                    </div>
-                }
-
-                <div className="main">
+                        </Alert>
+                    }
+                        
                     <Search updateResults={this.updateResults}  resetState={this.resetState}/>
 
                     {!this.isError() && 
@@ -159,6 +166,7 @@ class Search extends React.Component {
         super(props);
         this.state = {
             city: '',
+            loading: false
         };
         this.updateCity = this.updateCity.bind(this);
         this.searchByCity = this.searchByCity.bind(this);
@@ -168,9 +176,14 @@ class Search extends React.Component {
         this.setState({city: e.target.value});
         //this.props.resetState();
     }
+    
+    isSearching = () => {
+        return this.state.loading;
+    }
 
     searchByCity = () => {
         this.props.resetState();
+        this.setState({loading: true});
 
         const apiKey = '<<API_KEY>>';
         const url = 'http://api.openweathermap.org/data/2.5/weather?q=' + this.state.city + '&APPID=' + apiKey;
@@ -178,36 +191,40 @@ class Search extends React.Component {
         fetch(url)
             .then(res => res.json())
             .then((response) => {
+                this.setState({loading: false});
+
                 if (response.cod !== 200) {
-                    console.log({cod: response, message: response.message});
                     throw new ResponseError(response.cod, response.message);
                 }
                     
-                this.props.updateResults({
-                    error: {
-                        code: null,
-                        message: null
-                    },                    
+                this.props.updateResults({                   
                     data: response
                 });
             })
             .catch((response) => {
+                this.setState({loading: false});
+
                 this.props.updateResults({
                     error: {
                         code: response.code,
                         message: response.message
-                    },
-                    data: null
+                    }
                 });
             })
     }
 
     render() {
         return (
-            <div>
-                Enter a city: <input type="text"  onChange={this.updateCity} />
-                <input type="button" value="Submit" onClick={this.searchByCity} />
-            </div>
+            <Form inline className="search-form">
+                <Form.Group>
+                    <Form.Label className="mb-2 mr-sm-2">City:</Form.Label>
+                    <Form.Control type="text" className="mb-2 mr-sm-2" onChange={this.updateCity} />
+
+                    <Button variant="primary" className="mb-2" disabled={this.isSearching()} onClick={!this.isSearching() ? this.searchByCity : null}>
+                        {this.isSearching() ? 'Searching' : 'Search'}
+                    </Button>
+                </Form.Group>
+            </Form>
         );
     }
 }

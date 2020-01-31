@@ -6,3 +6,7 @@ body {
 .search-error span:not(:first-of-type) {
     display: block;
 }
+
+.search-form {
+    justify-content: center;
+}
